@@ -9,7 +9,7 @@ interface WebSocketHookReturn {
 }
 
 // Local development fallback.
-// In Render, NEXT_PUBLIC_WS_URL will be used instead.
+// In Render, NEXT_PUBLIC_WS_URL will be used.
 const DEFAULT_WS_URL = "ws://localhost:8000/ws";
 
 export function useWebSocket(
