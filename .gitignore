@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+backend/venv/
+venv/
+.venv/
+env/
+ENV/
+
+# Next.js Build Output
+frontend/.next/
+.next/
+out/
+build/
+dist/
+.turbo/
+
+# Python Cache & SQLite Database
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite
+*.sqlite3
+*.db
+backend/*.db
+wifi_analyzer.db
+
+# Environment & Local Configurations
+.env
+.env*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Operating System & IDE Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
