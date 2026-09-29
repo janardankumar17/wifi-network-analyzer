@@ -8,15 +8,22 @@ interface WebSocketHookReturn {
   sendMessage: (msg: string | object) => void;
 }
 
-export function useWebSocket(url: string = "ws://localhost:8000/ws"): WebSocketHookReturn {
+// Local development fallback.
+// In Render, NEXT_PUBLIC_WS_URL will be used instead.
+const DEFAULT_WS_URL = "ws://localhost:8000/ws";
+
+export function useWebSocket(
+  url: string = process.env.NEXT_PUBLIC_WS_URL || DEFAULT_WS_URL
+): WebSocketHookReturn {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState<any>(null);
+
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     let ws: WebSocket;
     let shouldReconnect = true;
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
 
     const connect = () => {
       try {
@@ -38,6 +45,7 @@ export function useWebSocket(url: string = "ws://localhost:8000/ws"): WebSocketH
 
         ws.onclose = () => {
           setIsConnected(false);
+
           if (shouldReconnect) {
             timer = setTimeout(connect, 3000);
           }
@@ -46,7 +54,7 @@ export function useWebSocket(url: string = "ws://localhost:8000/ws"): WebSocketH
         ws.onerror = () => {
           ws.close();
         };
-      } catch (err) {
+      } catch {
         if (shouldReconnect) {
           timer = setTimeout(connect, 3000);
         }
@@ -58,6 +66,7 @@ export function useWebSocket(url: string = "ws://localhost:8000/ws"): WebSocketH
     return () => {
       shouldReconnect = false;
       clearTimeout(timer);
+
       if (socketRef.current) {
         socketRef.current.close();
       }
@@ -65,11 +74,20 @@ export function useWebSocket(url: string = "ws://localhost:8000/ws"): WebSocketH
   }, [url]);
 
   const sendMessage = useCallback((msg: string | object) => {
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      const payload = typeof msg === "string" ? msg : JSON.stringify(msg);
+    if (
+      socketRef.current &&
+      socketRef.current.readyState === WebSocket.OPEN
+    ) {
+      const payload =
+        typeof msg === "string" ? msg : JSON.stringify(msg);
+
       socketRef.current.send(payload);
     }
   }, []);
 
-  return { isConnected, lastMessage, sendMessage };
+  return {
+    isConnected,
+    lastMessage,
+    sendMessage,
+  };
 }
